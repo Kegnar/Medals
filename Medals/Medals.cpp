@@ -14,25 +14,28 @@
 
 class MedalRow
 {
-	char country[4];
-	int medals[3];
+	static const int COUNTRY_MAX_CHARS = 4;
+	static const int MEDALS_IDX = 3;
+	char country[COUNTRY_MAX_CHARS];
+	int medals[MEDALS_IDX];
 public:
 	static const int GOLD{ 0 };
 	static const int SILVER{ 1 };
 	static const int BRONZE{ 2 };
 	MedalRow(const char* countryP, const int* medalsP)
 	{
-		strcpy_s(country, 4, countryP ? countryP : "NON");
-		for (int i{ 0 }; i < 3; ++i)
+		strcpy_s(country, COUNTRY_MAX_CHARS, countryP ? countryP : "NON");
+		for (int i{ 0 }; i < MEDALS_IDX; ++i)
 		{
 			medals[i] = medalsP ? medalsP[i] : 0;
 		}
 	}
+	//оператор присвоения
 	MedalRow& operator=(const MedalRow& medalRow)
 	{
 		if (&medalRow != this) {
-			strcpy_s(this->country, 4, medalRow.country ? medalRow.country : "NON");
-			for (int i{ 0 }; i < 3; ++i)
+			strcpy_s(this->country, COUNTRY_MAX_CHARS, medalRow.country ? medalRow.country : "NON");
+			for (int i{ 0 }; i < MEDALS_IDX; ++i)
 			{
 				medals[i] = medalRow.medals[i] ? medalRow.medals[i] : 0;
 			}
@@ -41,20 +44,22 @@ public:
 	}
 
 	MedalRow() : MedalRow(nullptr, nullptr) {}
+
+	// конструктор копирования
 	MedalRow(const MedalRow& medalRow)
 	{
-		strcpy_s(this->country, 4, medalRow.country ? medalRow.country : "NON");
-		for (int i{ 0 }; i < 3; ++i)
+		strcpy_s(this->country, COUNTRY_MAX_CHARS, medalRow.country ? medalRow.country : "NON");
+		for (int i{ 0 }; i < MEDALS_IDX; ++i)
 		{
 			medals[i] = medalRow.medals[i] ? medalRow.medals[i] : 0;
 		}
 	}
-	
+
 	MedalRow& setCountry(const char* countryP)
 	{
 		if (countryP)
 		{
-			strcpy_s(country, 4, countryP);
+			strcpy_s(country, COUNTRY_MAX_CHARS, countryP);
 		}
 		return *this;
 	}
@@ -62,20 +67,20 @@ public:
 
 	int& operator[](int idx)
 	{
-		assert((idx >= 0 and idx < 3) and "Index out "
+		assert((idx >= 0 and idx < MEDALS_IDX) and "Index out "
 			"of range!");
 		return medals[idx];
 	}
 	int operator[](int idx)const
 	{
-		assert((idx >= 0 and idx < 3) and "Index out "
+		assert((idx >= 0 and idx < MEDALS_IDX) and "Index out "
 			"of range!");
 		return medals[idx];
 	}
 	void print()const
 	{
 		std::cout << '[' << country << "]-( ";
-		for (int i{ 0 }; i < 3; ++i)
+		for (int i{ 0 }; i < MEDALS_IDX; ++i)
 		{
 			std::cout << medals[i];
 			if (i < 2) { std::cout << '\t'; }
@@ -111,17 +116,26 @@ public:
 	{
 		delete[]medalRows;
 	}
+	// конструктор копирования
 	MedalsTable(const MedalsTable& medalsTable)
 	{
 		this->maxSize = medalsTable.maxSize;
 		this->medalRows = new MedalRow[this->maxSize];
 		this->size = medalsTable.size;
-		for(int i = 0;i < medalsTable.maxSize;i++)
+		for (int i = 0; i < medalsTable.maxSize; i++)
 		{
 			medalRows[i] = medalsTable.medalRows[i];
 		}
 	}
-
+	// конструктор перемещения
+	MedalsTable(MedalsTable&& medalsTable)noexcept
+	{
+		this->maxSize = medalsTable.maxSize;
+		this->medalRows = medalsTable.medalRows;
+		this->size = medalsTable.size;
+		medalsTable.medalRows = nullptr;
+	}
+	//опрератор копирования
 	MedalsTable& operator= (const MedalsTable& medalsTable)
 	{
 		if (&medalsTable != this) {
@@ -132,6 +146,18 @@ public:
 			{
 				medalRows[i] = medalsTable.medalRows[i];
 			}
+		}
+		return *this;
+	}
+	//опрератор назначения
+	MedalsTable& operator= (MedalsTable&& medalsTable)noexcept
+	{
+		if (&medalsTable != this) {
+			delete[]this->medalRows; 
+			this->maxSize = medalsTable.maxSize;
+			this->medalRows = medalsTable.medalRows;
+			this->size = medalsTable.size;
+			medalsTable.medalRows = nullptr;
 		}
 		return *this;
 	}
@@ -168,8 +194,8 @@ int main()
 {
 	MedalsTable mt1;
 	std::cout << "Medals table #1:\n";
-	mt1["UKR"][MedalRow::GOLD] = 14;
-	mt1["UKR"][MedalRow::SILVER] = 5;
+	mt1["RUS"][MedalRow::GOLD] = 14;
+	mt1["RUS"][MedalRow::SILVER] = 5;
 	mt1["HUN"][MedalRow::BRONZE] = 9;
 	mt1["HUN"][MedalRow::GOLD] = 7;
 	mt1["POL"][MedalRow::GOLD] = 4;
