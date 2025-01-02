@@ -39,7 +39,17 @@ public:
 		}
 		return *this;
 	}
+
 	MedalRow() : MedalRow(nullptr, nullptr) {}
+	MedalRow(const MedalRow& medalRow)
+	{
+		strcpy_s(this->country, 4, medalRow.country ? medalRow.country : "NON");
+		for (int i{ 0 }; i < 3; ++i)
+		{
+			medals[i] = medalRow.medals[i] ? medalRow.medals[i] : 0;
+		}
+	}
+	
 	MedalRow& setCountry(const char* countryP)
 	{
 		if (countryP)
