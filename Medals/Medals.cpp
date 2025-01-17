@@ -8,8 +8,8 @@
 
 class MedalRow
 {
-	static const int COUNTRY_MAX_CHARS = 4;
-	static const int MEDALS_IDX = 3;
+#define  COUNTRY_MAX_CHARS 4
+#define  MEDALS_IDX 3
 	char country[COUNTRY_MAX_CHARS];
 	int medals[MEDALS_IDX];
 public:
@@ -71,24 +71,37 @@ public:
 			"of range!");
 		return medals[idx];
 	}
-	void print()const
-	{
-		std::cout << '[' << country << "]-( ";
-		for (int i{ 0 }; i < MEDALS_IDX; ++i)
-		{
-			std::cout << medals[i];
-			if (i < 2) { std::cout << '\t'; }
-		}
-		std::cout << " )\n";
-	}
+	//void print()const
+	//{
+	//	std::cout << '[' << country << "]-( ";
+	//	for (int i{ 0 }; i < MEDALS_IDX; ++i)
+	//	{
+	//		std::cout << medals[i];
+	//		if (i < 2) { std::cout << '\t'; }
+	//	}
+	//	std::cout << " )\n";
+	//}
 
 };
+
+std::ostream& operator<< (std::ostream& os, MedalRow& medal_row)
+{
+	os << '[' << medal_row.getCountry() << "]-( ";
+	for (int i{ 0 }; i < MEDALS_IDX; ++i)
+	{
+		os << medal_row[i];
+		if (i < 2) { std::cout << '\t'; }
+	}
+	os << " )\n";
+	return os;
+}
 
 class MedalsTable
 {
 	int maxSize{ 10 };
-	MedalRow* medalRows = new MedalRow[maxSize];
 	int size;
+	MedalRow* medalRows = new MedalRow[maxSize];
+	
 	int findCountry(const char* country)const
 	{
 		for (int i{ 0 }; i < size; ++i)
@@ -175,15 +188,36 @@ public:
 			"table");
 		return medalRows[idx];
 	}
+
 	void print()const
 	{
 
 		for (int i{ 0 }; i < size; ++i)
 		{
-			medalRows[i].print();
+			std::cout << medalRows[i];
 		}
 	}
+	int getSize() const
+	{
+		return this->size;
+	}
+	MedalRow& getRows(int idx)const
+	{
+		return medalRows[idx];
+	}
 };
+
+
+//
+std::ostream& operator<<(std::ostream& os, const MedalsTable& medals_table)
+{
+	for (int i{ 0 }; i < medals_table.getSize() ; ++i)
+	{
+		os << medals_table.getRows(i);
+	}
+	return os;
+}
+
 int main()
 {
 	MedalsTable mt1;
@@ -194,11 +228,21 @@ int main()
 	mt1["HUN"][MedalRow::GOLD] = 7;
 	mt1["POL"][MedalRow::GOLD] = 4;
 	mt1["POL"][MedalRow::SILVER] = 2;
-	mt1.print();
+
+	//mt1.print();
+	std::cout << mt1;
+
 	// создаем константную копию таблицы №1
 	std::cout << "\nMedals table #2:\n";
 	const MedalsTable mt2{ mt1 };
-	mt2.print();
+
+	//mt2.print();
+	std::cout << mt2;
+
+	MedalsTable mt3(std::move(mt2));
+	std::cout << "\nMedals table #3:\n";
+	std::cout << mt3;
+	//mt3.print();
 	// раскомментировав следующую строку можно протестировать
 	// проверку отсутствия страны в константной таблице
 	// медалей
