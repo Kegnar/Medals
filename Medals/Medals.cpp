@@ -1,10 +1,21 @@
 ﻿#include <iostream>
 #include <cassert>
 
+//23.12.2024
 //Реализуйте в классе MedalsTable из примера 18 возможность динамически задавать размер таблицы медалей.
 //Текущая реализация для упрощения использует статический массив на 10 элементов.
 //Замените его на динамически выделяемый массив.
 //Для класса MedalsTable реализуйте семантику копирования и семантику перемещния(две пары конструктор / оператор присваивания)
+//
+//25.12.2024
+//Дополните решение из задания 2 реализацией оператора вызова функции для класса MedalsTable.
+//Перегрузка должна принимать в качестве аргумента идентификатор страны и возвращать одну из констант :
+//MedalRow::GOLD, MedalRow::SILVER, MedalRow::BRONZE как константу соответствующую максимальному количеству медалей для заданной страны.То есть если,
+//к примеру, у Польши 2 золотые, 4 серебрянных и одна бронзовая медаль, то перегрузка оператора вызов функции с параметром POL вернет MedalRow::SILVER.
+//
+//27.12.2024
+//Дополните решение из задания 1 перегрузкой оператора помещения в поток(operator<<) для классов MedalRow и MedalsTable, заменив тем самым соответствующие
+//функции - члены print() в них
 
 class MedalRow
 {
@@ -189,14 +200,15 @@ public:
 		return medalRows[idx];
 	}
 
-	void print()const
+
+	/*void print()const
 	{
 
 		for (int i{ 0 }; i < size; ++i)
 		{
 			std::cout << medalRows[i];
 		}
-	}
+	}*/
 	int getSize() const
 	{
 		return this->size;
@@ -204,6 +216,18 @@ public:
 	MedalRow& getRows(int idx)const
 	{
 		return medalRows[idx];
+	}
+
+	int operator()(const char* country) const
+	{
+		int idx{ findCountry(country) };
+		assert(idx != -1 && "Country not found");
+
+		const MedalRow& row = medalRows[idx];
+		int maxMedal = MedalRow::GOLD;
+		if (row[MedalRow::SILVER] > row[maxMedal]) maxMedal = MedalRow::SILVER;
+		if (row[MedalRow::BRONZE] > row[maxMedal]) maxMedal = MedalRow::BRONZE;
+		return maxMedal;
 	}
 };
 
@@ -248,5 +272,13 @@ int main()
 	// медалей
 	// программа аварийно завершиться, что нормально!
 	// mt2["SLO"].print();
+
+	// Тест оператора ()
+	std::cout << "\nMax medal for RUS: ";
+	int maxMedal = mt1("RUS");
+	if (maxMedal == MedalRow::GOLD) std::cout << "GOLD\n";
+	else if (maxMedal == MedalRow::SILVER) std::cout << "SILVER\n";
+	else std::cout << "BRONZE\n";
+
 	return 0;
 }
